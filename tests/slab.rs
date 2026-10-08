@@ -199,7 +199,7 @@ fn reserve_exact_does_not_allocate_if_available() {
 fn reserve_does_panic_with_capacity_overflow() {
     let mut slab = Slab::with_capacity(10);
     slab.insert(true);
-    slab.reserve(isize::MAX as usize);
+    slab.reserve(isize::MAX.cast_unsigned());
 }
 
 #[test]
@@ -207,7 +207,7 @@ fn reserve_does_panic_with_capacity_overflow() {
 fn reserve_does_panic_with_capacity_overflow_bytes() {
     let mut slab = Slab::with_capacity(10);
     slab.insert(1u16);
-    slab.reserve((isize::MAX as usize) / 2);
+    slab.reserve(isize::MAX.cast_unsigned() / 2);
 }
 
 #[test]
@@ -215,7 +215,7 @@ fn reserve_does_panic_with_capacity_overflow_bytes() {
 fn reserve_exact_does_panic_with_capacity_overflow() {
     let mut slab = Slab::with_capacity(10);
     slab.insert(true);
-    slab.reserve_exact(isize::MAX as usize);
+    slab.reserve_exact(isize::MAX.cast_unsigned());
 }
 
 #[test]

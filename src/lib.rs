@@ -133,7 +133,7 @@ mod builder;
 use alloc::vec::{self, Vec};
 use core::iter::{self, FromIterator, FusedIterator};
 use core::mem::MaybeUninit;
-use core::{fmt, mem, ops, slice};
+use core::{fmt, mem, ops, ptr, slice};
 
 /// Pre-allocated storage for a uniform data type
 ///
@@ -833,7 +833,7 @@ impl<T> Slab<T> {
         let entries_len = self.entries.len();
 
         let mut res = MaybeUninit::<[&mut T; N]>::uninit();
-        let res_ptr = res.as_mut_ptr() as *mut &mut T;
+        let res_ptr = res.as_mut_ptr().cast::<&mut T>();
 
         for (i, &key) in keys.iter().enumerate() {
             // `key` won't be greater than `entries_len`.
@@ -993,8 +993,8 @@ impl<T> Slab<T> {
     /// ```
     #[track_caller]
     pub fn key_of(&self, present_element: &T) -> usize {
-        let element_ptr = present_element as *const T as usize;
-        let base_ptr = self.entries.as_ptr() as usize;
+        let element_ptr = ptr::from_ref(present_element).addr();
+        let base_ptr = self.entries.as_ptr().addr();
         // Use wrapping subtraction in case the reference is bad
         let byte_offset = element_ptr.wrapping_sub(base_ptr);
         // The division rounds away any offset of T inside Entry
